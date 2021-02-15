@@ -10,7 +10,8 @@
 ### Part 1 - Documentation
 **Wiki page:**
 https://github.com/TheCovenant/oss-repo-template/wiki/Project-Description
-**Latex formulae**
+
+**Latex formulae:**
 $\sqrt{1+2\sqrt{1+3\sqrt{1+4\sqrt{1+...}}}}$
 $\sqrt{2}^{\sqrt{2}^{\sqrt{2}^{\sqrt{2}...}}}$
 
@@ -73,6 +74,7 @@ Date:   Fri Feb 12 19:00:26 2021 -0500
 
 current branches:
  master
+
 3. Tempoture
 num. contributors: 2
 
@@ -96,6 +98,7 @@ Date:   Sun Nov 22 16:52:04 2020 -0500
 
 current branches:
  main
+
 4. The Hotbox
 num. contributors: 9
 
@@ -162,13 +165,23 @@ current branches:
 
 **git stats**'
 1. Teetor
-![](teetor-gitstats.PNG)
+![Teetor](teetor-gitstats.PNG)
+
 2. Telescope
+![Telescope](telescope-gitstats.PNG)
+
 3. Tempoture
+![Telescope](tempoture-gitstats.PNG)
+
 4. The Hotbox
+![Hotbox](hotbox-gitstats.PNG)
+
 5. Tutorbase
+![Tutorbase](tutorbase-gitstats.PNG)
+
 
 **gource videos**
+(exists as mp4 files in this directory)
 1. Teetor
 ![](teetor-gource.mp4)
 2. Telescope
