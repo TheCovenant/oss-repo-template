@@ -5,7 +5,7 @@
 
 1.
 
-![license](license.jpg)
+![license](license.JPG)
 
 2. 
 
