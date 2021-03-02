@@ -25,7 +25,8 @@
 
 ## Step 4 
 ### CMakeLists.txt
-'''
+```
+
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name and version
@@ -91,10 +92,12 @@ do_test(Tutorial 7 "7 is 2.645")
 do_test(Tutorial 25 "25 is 5")
 do_test(Tutorial -25 "-25 is [-nan|nan|0]")
 do_test(Tutorial 0.0001 "0.0001 is 0.01")
-'''
+
+```
 
 ### MathFunctions/CMakeLists
-'''
+```
+
 add_library(MathFunctions mysqrt.cxx)
 
 # state that anybody linking to us needs to include the current source dir
@@ -105,6 +108,7 @@ target_include_directories(MathFunctions
 
 install(TARGETS MathFunctions DESTINATION lib)
 install(FILES MathFunctions.h DESTINATION include)
-'''
+
+```
 
 ![output4](output4.JPG)
