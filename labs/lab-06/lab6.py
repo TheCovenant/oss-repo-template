@@ -30,6 +30,7 @@ import gzip
 from string import ascii_lowercase as lowercase
 
 import networkx as nx
+import itertools
 
 #-------------------------------------------------------------------
 #   The Words/Ladder graph of Section 1.1
@@ -42,10 +43,16 @@ def generate_graph(words):
 
     def edit_distance_one(word):
         for i in range(len(word)):
-            left, c, right = word[0:i], word[i], word[i + 1:]
-            j = lookup[c]  # lowercase.index(c)
-            for cc in lowercase[j + 1:]:
-                yield left + cc + right
+            letter = word[i]
+            letter_index = lookup[letter]
+            word_set = set(word)
+            for next_letter in lowercase[letter_index + 1:]:
+                new_word = word + next_letter
+                perms = itertools.permutations(new_word,5)
+                for perm in perms:
+                    permed_word = "".join(perm)
+                    yield permed_word
+        
     candgen = ((word, cand) for word in sorted(words)
                for cand in edit_distance_one(word) if cand in words)
     G.add_nodes_from(words)
@@ -68,6 +75,7 @@ def words_graph():
 
 
 if __name__ == '__main__':
+
     G = words_graph()
     print("Loaded words_dat.txt containing 5757 five-letter English words.")
     print("Two words are connected if they differ in one letter.")
@@ -78,7 +86,7 @@ if __name__ == '__main__':
     for (source, target) in [('chaos', 'order'),
                              ('nodes', 'graph'),
                              ('moron', 'smart'),
-                             ('flies', 'swims'),
+                             ('files', 'swims'),
                              ('mango', 'peach'),
                              ('pound', 'marks')]:
         print("Shortest path between %s and %s is" % (source, target))
