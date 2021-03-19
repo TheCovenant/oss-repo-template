@@ -7,219 +7,169 @@
 # Tutorial
 
 ## Step 1
-![Cmakelists](Cmakelists.JPG)
-![tutorial](tutorial.JPG)
-![output](output.JPG)
+Code:
+```
+"""
+=====
+Words
+=====
+Words/Ladder Graph
+------------------
+Generate  an undirected graph over the 5757 5-letter words in the
+datafile `words_dat.txt.gz`.  Two words are connected by an edge
+if they differ in one letter, resulting in 14,135 edges. This example
+is described in Section 1.1 in Knuth's book (see [1]_ and [2]_).
+References
+----------
+.. [1] Donald E. Knuth,
+   "The Stanford GraphBase: A Platform for Combinatorial Computing",
+   ACM Press, New York, 1993.
+.. [2] http://www-cs-faculty.stanford.edu/~knuth/sgb.html
+"""
+# Authors: Aric Hagberg (hagberg@lanl.gov),
+#          Brendt Wohlberg,
+#          hughdbrown@yahoo.com
 
-## Step 2
-![cmake2](cmake2.JPG)
-![tutorial2](tutorial2.JPG)
-![output2](output2.JPG)
+#    Copyright (C) 2004-2019 by
+#    Aric Hagberg <hagberg@lanl.gov>
+#    Dan Schult <dschult@colgate.edu>
+#    Pieter Swart <swart@lanl.gov>
+#    All rights reserved.
+#    BSD license.
 
-## Step 3
-![cmake3a](cmake3a.JPG)
-![cmake3b](cmake3b.JPG)
-![tutorial](tutorial3.JPG)
-![output3](output3.JPG)
+import gzip
+from string import ascii_lowercase as lowercase
+
+import networkx as nx
+
+#-------------------------------------------------------------------
+#   The Words/Ladder graph of Section 1.1
+#-------------------------------------------------------------------
 
 
-## Step 4 
-### CMakeLists.txt
+def generate_graph(words):
+    G = nx.Graph(name="words")
+    lookup = dict((c, lowercase.index(c)) for c in lowercase)
+    print(lowercase)
+    print(lookup)
+
+    def edit_distance_one(word):
+        for i in range(len(word)):
+            left, c, right = word[0:i], word[i], word[i + 1:]
+            j = lookup[c]  # lowercase.index(c)
+            for cc in lowercase[j + 1:]:
+                yield left + cc + right
+    candgen = ((word, cand) for word in sorted(words)
+               for cand in edit_distance_one(word) if cand in words)
+    G.add_nodes_from(words)
+    for word, cand in candgen:
+        G.add_edge(word, cand)
+    return G
+
+
+def words_graph():
+    """Return the words example graph from the Stanford GraphBase"""
+    fh = gzip.open('words_dat.txt.gz', 'r')
+    words = set()
+    for line in fh.readlines():
+        line = line.decode()
+        if line.startswith('*'):
+            continue
+        w = str(line[0:5])
+        words.add(w)
+    return generate_graph(words)
+
+
+if __name__ == '__main__':
+    G = words_graph()
+    print("Loaded words_dat.txt containing 5757 five-letter English words.")
+    print("Two words are connected if they differ in one letter.")
+    print("Graph has %d nodes with %d edges"
+          % (nx.number_of_nodes(G), nx.number_of_edges(G)))
+    print("%d connected components" % nx.number_connected_components(G))
+
+    for (source, target) in [('chaos', 'order'),
+                             ('nodes', 'graph'),
+                             ('moron', 'smart'),
+                             ('flies', 'swims'),
+                             ('mango', 'peach'),
+                             ('pound', 'marks')]:
+        print("Shortest path between %s and %s is" % (source, target))
+        try:
+            sp = nx.shortest_path(G, source, target)
+            for n in sp:
+                print(n)
+        except nx.NetworkXNoPath:
+            print("None")
 ```
 
-cmake_minimum_required(VERSION 3.10)
-
-# set the project name and version
-project(Tutorial VERSION 1.0)
-
-# specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-# should we use our own math functions
-option(USE_MYMATH "Use tutorial provided math implementation" ON)
-
-# configure a header file to pass some of the CMake settings
-# to the source code
-configure_file(TutorialConfig.h.in TutorialConfig.h)
-
-# add the MathFunctions library
-if(USE_MYMATH)
-  add_subdirectory(MathFunctions)
-  list(APPEND EXTRA_LIBS MathFunctions)
-endif()
-
-# add the executable
-add_executable(Tutorial tutorial.cxx)
-
-target_link_libraries(Tutorial PUBLIC ${EXTRA_LIBS})
-
-# add the binary tree to the search path for include files
-# so that we will find TutorialConfig.h
-target_include_directories(Tutorial PUBLIC
-                           "${PROJECT_BINARY_DIR}"
-                           )
-
-install(TARGETS Tutorial DESTINATION bin)
-install(FILES "${PROJECT_BINARY_DIR}/TutorialConfig.h"
-  DESTINATION include
-  )
-
-enable_testing()
-
-# does the application run
-add_test(NAME Runs COMMAND Tutorial 25)
-
-# does the usage message work?
-add_test(NAME Usage COMMAND Tutorial)
-set_tests_properties(Usage
-  PROPERTIES PASS_REGULAR_EXPRESSION "Usage:.*number"
-  )
-
-# define a function to simplify adding tests
-function(do_test target arg result)
-  add_test(NAME Comp${arg} COMMAND ${target} ${arg})
-  set_tests_properties(Comp${arg}
-    PROPERTIES PASS_REGULAR_EXPRESSION ${result}
-    )
-endfunction(do_test)
-
-# do a bunch of result based tests
-do_test(Tutorial 4 "4 is 2")
-do_test(Tutorial 9 "9 is 3")
-do_test(Tutorial 5 "5 is 2.236")
-do_test(Tutorial 7 "7 is 2.645")
-do_test(Tutorial 25 "25 is 5")
-do_test(Tutorial -25 "-25 is [-nan|nan|0]")
-do_test(Tutorial 0.0001 "0.0001 is 0.01")
-
+Result:
 ```
-
-### MathFunctions/CMakeLists
+C:\Users\cfalu\OneDrive\Documents\oss-repo-template\labs\lab-06> python lab6.py
+Loaded words_dat.txt containing 5757 five-letter English words.
+Two words are connected if they differ in one letter.
+Graph has 5757 nodes with 14135 edges
+853 connected components
+Shortest path between chaos and order is
+chaos
+choos
+shoos
+shoes
+shoed
+shred
+sired
+sided
+aided
+added
+adder
+odder
+order
+Shortest path between nodes and graph is
+nodes
+lodes
+lores
+lords
+loads
+goads
+grads
+grade
+grape
+graph
+Shortest path between moron and smart is
+moron
+boron
+baron
+caron
+capon
+capos
+capes
+canes
+banes
+bands
+bends
+beads
+bears
+sears
+stars
+start
+smart
+Shortest path between flies and swims is
+flies
+flips
+slips
+slims
+swims
+Shortest path between mango and peach is
+mango
+mange
+marge
+merge
+merse
+terse
+tease
+pease
+peace
+peach
+Shortest path between pound and marks is
+None
 ```
-
-add_library(MathFunctions mysqrt.cxx)
-
-# state that anybody linking to us needs to include the current source dir
-# to find MathFunctions.h, while we don't.
-target_include_directories(MathFunctions
-          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-          )
-
-install(TARGETS MathFunctions DESTINATION lib)
-install(FILES MathFunctions.h DESTINATION include)
-
-```
-
-![output4](output4.JPG)
-
-
-## Step 5
-###CMakeLists
-```
-cmake_minimum_required(VERSION 3.10)
-
-# set the project name and version
-project(Tutorial VERSION 1.0)
-
-# specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-# should we use our own math functions
-option(USE_MYMATH "Use tutorial provided math implementation" ON)
-
-# configure a header file to pass some of the CMake settings
-# to the source code
-configure_file(TutorialConfig.h.in TutorialConfig.h)
-
-# add the MathFunctions library
-if(USE_MYMATH)
-  add_subdirectory(MathFunctions)
-  list(APPEND EXTRA_LIBS MathFunctions)
-endif()
-
-# add the executable
-add_executable(Tutorial tutorial.cxx)
-target_link_libraries(Tutorial PUBLIC ${EXTRA_LIBS})
-
-# add the binary tree to the search path for include files
-# so that we will find TutorialConfig.h
-target_include_directories(Tutorial PUBLIC
-                           "${PROJECT_BINARY_DIR}"
-                           )
-
-# add the install targets
-install(TARGETS Tutorial DESTINATION bin)
-install(FILES "${PROJECT_BINARY_DIR}/TutorialConfig.h"
-  DESTINATION include
-  )
-
-# enable testing
-enable_testing()
-
-# does the application run
-add_test(NAME Runs COMMAND Tutorial 25)
-
-# does the usage message work?
-add_test(NAME Usage COMMAND Tutorial)
-set_tests_properties(Usage
-  PROPERTIES PASS_REGULAR_EXPRESSION "Usage:.*number"
-  )
-
-# define a function to simplify adding tests
-function(do_test target arg result)
-  add_test(NAME Comp${arg} COMMAND ${target} ${arg})
-  set_tests_properties(Comp${arg}
-    PROPERTIES PASS_REGULAR_EXPRESSION ${result}
-    )
-endfunction(do_test)
-
-# do a bunch of result based tests
-do_test(Tutorial 4 "4 is 2")
-do_test(Tutorial 9 "9 is 3")
-do_test(Tutorial 5 "5 is 2.236")
-do_test(Tutorial 7 "7 is 2.645")
-do_test(Tutorial 25 "25 is 5")
-do_test(Tutorial -25 "-25 is [-nan|nan|0]")
-do_test(Tutorial 0.0001 "0.0001 is 0.01")
-
-```
-
-#### MathFunctions/CMakeLists
-```
-
-add_library(MathFunctions mysqrt.cxx)
-
-# state that anybody linking to us needs to include the current source dir
-# to find MathFunctions.h, while we don't.
-target_include_directories(MathFunctions
-          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-          )
-
-# install rules
-install(TARGETS MathFunctions DESTINATION lib)
-install(FILES MathFunctions.h DESTINATION include)
-
-include(CheckSymbolExists)
-check_symbol_exists(log "math.h" HAVE_LOG)
-check_symbol_exists(exp "math.h" HAVE_EXP)
-if(NOT (HAVE_LOG AND HAVE_EXP))
-  unset(HAVE_LOG CACHE)
-  unset(HAVE_EXP CACHE)
-  set(CMAKE_REQUIRED_LIBRARIES "m")
-  check_symbol_exists(log "math.h" HAVE_LOG)
-  check_symbol_exists(exp "math.h" HAVE_EXP)
-  if(HAVE_LOG AND HAVE_EXP)
-    target_link_libraries(MathFunctions PRIVATE m)
-  endif()
-endif()
-
-if(HAVE_LOG AND HAVE_EXP)
-  target_compile_definitions(MathFunctions
-                             PRIVATE "HAVE_LOG" "HAVE_EXP")
-endif()
-
-```
-![mysqrt](mysqrt.JPG)
-![output5](output5.JPG)
