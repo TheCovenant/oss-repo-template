@@ -7,7 +7,7 @@
 
 ### Proof of Docker Installation: 
 
-![whale](whale.png)
+![whale](whale.PNG)
 
 ## Example 01
 
