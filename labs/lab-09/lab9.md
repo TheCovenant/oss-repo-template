@@ -15,7 +15,7 @@
 
 ### 3. Basic Queries:
 
-![modifications](modificiations.PNG)
+![modifications](modifications.PNG)
 
 ### 4. Driving Queries:
 ```
